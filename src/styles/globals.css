@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --neon-cyan: #00f5ff;
+    --neon-purple: #b400ff;
+    --neon-pink: #ff006e;
+    --neon-green: #39ff14;
+    --dark-900: #050508;
+    --dark-800: #0a0a12;
+    --dark-700: #0f0f1a;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-cyan) var(--dark-800);
+  }
+
+  *::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--dark-800);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--neon-cyan);
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .neon-border {
+    @apply border border-[#00f5ff] shadow-[0_0_8px_#00f5ff];
+  }
+
+  .neon-text {
+    @apply text-[#00f5ff] drop-shadow-[0_0_8px_#00f5ff];
+  }
+
+  .neon-btn {
+    @apply px-6 py-3 border border-[#00f5ff] text-[#00f5ff] 
+           font-display font-bold tracking-widest uppercase
+           bg-[#00f5ff10] hover:bg-[#00f5ff25]
+           shadow-[0_0_8px_#00f5ff] hover:shadow-[0_0_16px_#00f5ff]
+           transition-all duration-200 cursor-pointer
+           select-none;
+  }
+
+  .neon-btn-purple {
+    @apply px-6 py-3 border border-[#b400ff] text-[#b400ff]
+           font-display font-bold tracking-widest uppercase
+           bg-[#b400ff10] hover:bg-[#b400ff25]
+           shadow-[0_0_8px_#b400ff] hover:shadow-[0_0_16px_#b400ff]
+           transition-all duration-200 cursor-pointer
+           select-none;
+  }
+
+  .neon-btn-pink {
+    @apply px-6 py-3 border border-[#ff006e] text-[#ff006e]
+           font-display font-bold tracking-widest uppercase
+           bg-[#ff006e10] hover:bg-[#ff006e25]
+           shadow-[0_0_8px_#ff006e] hover:shadow-[0_0_16px_#ff006e]
+           transition-all duration-200 cursor-pointer
+           select-none;
+  }
+
+  .panel {
+    @apply bg-[#0a0a12cc] backdrop-blur-sm border border-[#00f5ff30]
+           rounded-sm;
+  }
+
+  .panel-header {
+    @apply px-4 py-2 border-b border-[#00f5ff30]
+           font-display text-xs font-bold tracking-widest text-[#00f5ff]
+           uppercase;
+  }
+
+  .stat-row {
+    @apply flex justify-between items-center px-4 py-1
+           font-mono text-xs text-slate-400;
+  }
+
+  .stat-value {
+    @apply text-[#00f5ff] font-bold;
+  }
+}
