@@ -9,7 +9,7 @@ import { SwordArenaGame } from './sword-arena/SwordArenaGame'
 import { ObstacleCourseGame } from './obstacle-course/ObstacleCourseGame'
 
 export class GameRegistry {
-  private static registry: Map<GameId, () => Game> = new Map([
+  private static registry: Map<GameId, () => Game> = new Map<GameId, () => Game>([
     ['target-shooter', () => new TargetShooterGame()],
     ['block-breaker', () => new BlockBreakerGame()],
     ['space-arena', () => new SpaceArenaGame()],

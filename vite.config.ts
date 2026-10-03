@@ -11,6 +11,9 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
+    // The tree-shaken three.js core is ~500 kB minified (~125 kB gzip) on its own
+    // and can't be split further; keep the warning for anything larger.
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {

@@ -1,4 +1,4 @@
-แ้ำแimport React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import * as THREE from 'three'
 import { useAppStore, selectView, selectInputMode, selectIsPaused, GameId } from './store'
 
@@ -300,7 +300,7 @@ export const App: React.FC = () => {
   const showOverlay = view !== 'playing' || isPaused
 
   return (
-    <div className="relative w-full h-full bg-[#050508] overflow-hidden">
+    <div className="relative w-full h-full bg-dark-900 overflow-hidden">
       {/* Three.js canvas — always rendered */}
       <canvas
         ref={canvasRef}
@@ -313,7 +313,7 @@ export const App: React.FC = () => {
         <div className="absolute inset-0 z-20 overflow-hidden">
           {/* Semi-transparent backdrop for menus (not during gameplay) */}
           {view !== 'playing' && (
-            <div className="absolute inset-0 bg-[#050508d0] backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-[#050508d0] backdrop-blur-xs" />
           )}
           <div className="relative z-10 h-full overflow-y-auto">
             {renderUI()}
@@ -336,7 +336,7 @@ export const App: React.FC = () => {
           <div className="w-4 h-4 relative">
             <div className="absolute top-1/2 left-0 right-0 h-px bg-[#00f5ff80]" />
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-[#00f5ff80]" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border border-[#00f5ff]" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full border border-neon-cyan" />
           </div>
         </div>
       )}
@@ -344,7 +344,7 @@ export const App: React.FC = () => {
       {/* Click to focus hint */}
       {view === 'playing' && !isPaused && inputMode === 'desktop' && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
-          <p className="text-[10px] font-mono text-slate-600 bg-[#050508aa] px-3 py-1 rounded-sm">
+          <p className="text-[10px] font-mono text-slate-600 bg-[#050508aa] px-3 py-1 rounded-xs">
             Click to lock mouse · ESC to pause
           </p>
         </div>
@@ -378,9 +378,9 @@ function applyThumbstickLocomotion(
 const PauseOverlay: React.FC<{ onResume: () => void; onExit: () => void }> = ({
   onResume, onExit,
 }) => (
-  <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#050508cc] backdrop-blur-sm">
+  <div className="absolute inset-0 z-30 flex items-center justify-center bg-[#050508cc] backdrop-blur-xs">
     <div className="panel p-8 flex flex-col items-center gap-6 min-w-[280px]">
-      <div className="font-display text-2xl text-[#00f5ff] tracking-widest">PAUSED</div>
+      <div className="font-display text-2xl text-neon-cyan tracking-widest">PAUSED</div>
       <div className="flex flex-col gap-3 w-full">
         <button
           className="neon-btn w-full py-3"

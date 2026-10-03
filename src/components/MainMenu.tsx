@@ -38,7 +38,7 @@ export const MainMenu: React.FC<Props> = ({
             backgroundSize: '40px 40px',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#050508]" />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-dark-900" />
       </div>
 
       {/* Top status bar */}
@@ -49,9 +49,9 @@ export const MainMenu: React.FC<Props> = ({
       <div className="relative z-10 flex flex-col items-center gap-8 max-w-lg w-full">
         {/* Hero title */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#00f5ff30] rounded-sm mb-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00f5ff] animate-pulse" />
-            <span className="text-xs font-mono text-[#00f5ff] tracking-widest uppercase">
+          <div className="inline-flex items-center gap-2 px-3 py-1 border border-[#00f5ff30] rounded-xs mb-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-neon-cyan animate-pulse" />
+            <span className="text-xs font-mono text-neon-cyan tracking-widest uppercase">
               Pico 4 · WebXR
             </span>
           </div>
@@ -71,9 +71,9 @@ export const MainMenu: React.FC<Props> = ({
 
         {/* Divider */}
         <div className="flex items-center gap-4 w-full">
-          <div className="flex-1 h-px bg-gradient-to-r from-transparent to-[#00f5ff30]" />
+          <div className="flex-1 h-px bg-linear-to-r from-transparent to-[#00f5ff30]" />
           <span className="text-slate-600 text-xs font-mono tracking-wider uppercase">Games</span>
-          <div className="flex-1 h-px bg-gradient-to-l from-transparent to-[#00f5ff30]" />
+          <div className="flex-1 h-px bg-linear-to-l from-transparent to-[#00f5ff30]" />
         </div>
 
         {/* Game quick-select grid */}
@@ -84,8 +84,8 @@ export const MainMenu: React.FC<Props> = ({
               onClick={() => { audio.play('hover') }}
               onDoubleClick={() => { audio.play('select'); onSelectGames() }}
               className="flex flex-col items-center gap-1.5 p-3 border border-[#ffffff10]
-                         bg-[#0a0a12] hover:border-[#00f5ff40] hover:bg-[#0f0f1e]
-                         transition-all duration-200 rounded-sm"
+                         bg-dark-800 hover:border-[#00f5ff40] hover:bg-[#0f0f1e]
+                         transition-all duration-200 rounded-xs"
               title={item.label}
             >
               <span className="text-2xl">{item.icon}</span>
@@ -122,8 +122,8 @@ export const MainMenu: React.FC<Props> = ({
               key={item.label}
               onClick={() => { audio.play('click'); item.onClick() }}
               className="flex flex-col items-center gap-2 p-4 border border-[#ffffff10]
-                         bg-[#0a0a12] hover:border-[#b400ff40] hover:bg-[#0a0014]
-                         transition-all duration-200 rounded-sm"
+                         bg-dark-800 hover:border-[#b400ff40] hover:bg-[#0a0014]
+                         transition-all duration-200 rounded-xs"
             >
               <span className="text-xl">{item.icon}</span>
               <span className="text-[10px] font-mono text-slate-500 text-center">{item.label}</span>
@@ -135,7 +135,7 @@ export const MainMenu: React.FC<Props> = ({
         <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
           <span>{inputMode === 'vr' ? '◉ VR Mode' : '○ Desktop Mode'}</span>
           {xr.isSessionActive && (
-            <span className="text-[#39ff14]">· Session Active</span>
+            <span className="text-neon-green">· Session Active</span>
           )}
         </div>
       </div>

@@ -1,6 +1,131 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  --color-neon-cyan: #00f5ff;
+  --color-neon-purple: #b400ff;
+  --color-neon-pink: #ff006e;
+  --color-neon-green: #39ff14;
+  --color-neon-orange: #ff6200;
+
+  --color-dark-300: #0f3460;
+  --color-dark-400: #16213e;
+  --color-dark-500: #1a1a2e;
+  --color-dark-600: #141422;
+  --color-dark-700: #0f0f1a;
+  --color-dark-800: #0a0a12;
+  --color-dark-900: #050508;
+
+  --font-mono: JetBrains Mono, Fira Code, monospace;
+  --font-display: Orbitron, sans-serif;
+
+  --shadow-neon: 0 0 10px #00f5ff, 0 0 20px #00f5ff, 0 0 40px #00f5ff;
+  --shadow-neon-purple: 0 0 10px #b400ff, 0 0 20px #b400ff;
+  --shadow-neon-pink: 0 0 10px #ff006e, 0 0 20px #ff006e;
+
+  --animate-pulse-neon: pulseNeon 2s ease-in-out infinite;
+  --animate-float: float 3s ease-in-out infinite;
+  --animate-scan: scan 2s linear infinite;
+
+  @keyframes pulseNeon {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes scan {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(100%);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility neon-border {
+  @apply border border-[#00f5ff] shadow-[0_0_8px_#00f5ff];
+}
+
+@utility neon-text {
+  @apply text-[#00f5ff] drop-shadow-[0_0_8px_#00f5ff];
+}
+
+@utility neon-btn {
+  @apply px-6 py-3 border border-[#00f5ff] text-[#00f5ff] 
+           font-display font-bold tracking-widest uppercase
+           bg-[#00f5ff10] hover:bg-[#00f5ff25]
+           shadow-[0_0_8px_#00f5ff] hover:shadow-[0_0_16px_#00f5ff]
+           transition-all duration-200 cursor-pointer
+           select-none;
+}
+
+@utility neon-btn-purple {
+  @apply px-6 py-3 border border-[#b400ff] text-[#b400ff]
+           font-display font-bold tracking-widest uppercase
+           bg-[#b400ff10] hover:bg-[#b400ff25]
+           shadow-[0_0_8px_#b400ff] hover:shadow-[0_0_16px_#b400ff]
+           transition-all duration-200 cursor-pointer
+           select-none;
+}
+
+@utility neon-btn-pink {
+  @apply px-6 py-3 border border-[#ff006e] text-[#ff006e]
+           font-display font-bold tracking-widest uppercase
+           bg-[#ff006e10] hover:bg-[#ff006e25]
+           shadow-[0_0_8px_#ff006e] hover:shadow-[0_0_16px_#ff006e]
+           transition-all duration-200 cursor-pointer
+           select-none;
+}
+
+@utility panel {
+  @apply bg-[#0a0a12cc] backdrop-blur-xs border border-[#00f5ff30]
+           rounded-xs;
+}
+
+@utility panel-header {
+  @apply px-4 py-2 border-b border-[#00f5ff30]
+           font-display text-xs font-bold tracking-widest text-[#00f5ff]
+           uppercase;
+}
+
+@utility stat-row {
+  @apply flex justify-between items-center px-4 py-1
+           font-mono text-xs text-slate-400;
+}
+
+@utility stat-value {
+  @apply text-[#00f5ff] font-bold;
+}
 
 @layer base {
   :root {
@@ -29,62 +154,5 @@
   *::-webkit-scrollbar-thumb {
     background: var(--neon-cyan);
     border-radius: 2px;
-  }
-}
-
-@layer components {
-  .neon-border {
-    @apply border border-[#00f5ff] shadow-[0_0_8px_#00f5ff];
-  }
-
-  .neon-text {
-    @apply text-[#00f5ff] drop-shadow-[0_0_8px_#00f5ff];
-  }
-
-  .neon-btn {
-    @apply px-6 py-3 border border-[#00f5ff] text-[#00f5ff] 
-           font-display font-bold tracking-widest uppercase
-           bg-[#00f5ff10] hover:bg-[#00f5ff25]
-           shadow-[0_0_8px_#00f5ff] hover:shadow-[0_0_16px_#00f5ff]
-           transition-all duration-200 cursor-pointer
-           select-none;
-  }
-
-  .neon-btn-purple {
-    @apply px-6 py-3 border border-[#b400ff] text-[#b400ff]
-           font-display font-bold tracking-widest uppercase
-           bg-[#b400ff10] hover:bg-[#b400ff25]
-           shadow-[0_0_8px_#b400ff] hover:shadow-[0_0_16px_#b400ff]
-           transition-all duration-200 cursor-pointer
-           select-none;
-  }
-
-  .neon-btn-pink {
-    @apply px-6 py-3 border border-[#ff006e] text-[#ff006e]
-           font-display font-bold tracking-widest uppercase
-           bg-[#ff006e10] hover:bg-[#ff006e25]
-           shadow-[0_0_8px_#ff006e] hover:shadow-[0_0_16px_#ff006e]
-           transition-all duration-200 cursor-pointer
-           select-none;
-  }
-
-  .panel {
-    @apply bg-[#0a0a12cc] backdrop-blur-sm border border-[#00f5ff30]
-           rounded-sm;
-  }
-
-  .panel-header {
-    @apply px-4 py-2 border-b border-[#00f5ff30]
-           font-display text-xs font-bold tracking-widest text-[#00f5ff]
-           uppercase;
-  }
-
-  .stat-row {
-    @apply flex justify-between items-center px-4 py-1
-           font-mono text-xs text-slate-400;
-  }
-
-  .stat-value {
-    @apply text-[#00f5ff] font-bold;
   }
 }

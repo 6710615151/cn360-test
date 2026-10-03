@@ -28,12 +28,12 @@ export const GameSelector: React.FC<Props> = ({ onSelectGame, onBack }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#00f5ff20]">
         <button
-          className="text-slate-500 hover:text-[#00f5ff] transition-colors font-mono text-sm"
+          className="text-slate-500 hover:text-neon-cyan transition-colors font-mono text-sm"
           onClick={() => { audio.play('click'); onBack() }}
         >
           ← Back
         </button>
-        <h2 className="font-display text-[#00f5ff] tracking-widest text-sm uppercase">
+        <h2 className="font-display text-neon-cyan tracking-widest text-sm uppercase">
           Select Game
         </h2>
         <div className="w-12" />
@@ -49,10 +49,10 @@ export const GameSelector: React.FC<Props> = ({ onSelectGame, onBack }) => {
                 key={meta.id}
                 onClick={() => { audio.play('select'); onSelectGame(meta.id as GameId) }}
                 className={`
-                  relative flex flex-col p-5 text-left rounded-sm transition-all duration-200
-                  border bg-[#0a0a12] hover:bg-[#0f0f1e]
+                  relative flex flex-col p-5 text-left rounded-xs transition-all duration-200
+                  border bg-dark-800 hover:bg-[#0f0f1e]
                   ${isActive
-                    ? 'border-[#00f5ff] shadow-[0_0_16px_#00f5ff40]'
+                    ? 'border-neon-cyan shadow-[0_0_16px_#00f5ff40]'
                     : 'border-[#ffffff15] hover:border-[#00f5ff60] hover:shadow-[0_0_8px_#00f5ff20]'
                   }
                 `}
@@ -73,7 +73,7 @@ export const GameSelector: React.FC<Props> = ({ onSelectGame, onBack }) => {
                 {/* Difficulty */}
                 <div className="flex items-center justify-between mt-auto">
                   <span
-                    className="text-xs font-mono px-2 py-0.5 border rounded-sm"
+                    className="text-xs font-mono px-2 py-0.5 border rounded-xs"
                     style={{
                       color: DIFFICULTY_COLORS[meta.difficulty],
                       borderColor: DIFFICULTY_COLORS[meta.difficulty] + '44',
@@ -83,15 +83,15 @@ export const GameSelector: React.FC<Props> = ({ onSelectGame, onBack }) => {
                     {DIFFICULTY_LABELS[meta.difficulty]}
                   </span>
                   <span
-                    className="text-xs font-display tracking-widest uppercase px-3 py-1 border rounded-sm
-                               text-[#00f5ff] border-[#00f5ff] bg-[#00f5ff10] hover:bg-[#00f5ff25] transition-colors"
+                    className="text-xs font-display tracking-widest uppercase px-3 py-1 border rounded-xs
+                               text-neon-cyan border-neon-cyan bg-[#00f5ff10] hover:bg-[#00f5ff25] transition-colors"
                   >
                     Play
                   </span>
                 </div>
 
                 {isActive && (
-                  <div className="absolute top-2 right-2 text-[10px] font-mono text-[#00f5ff] bg-[#00f5ff15] px-1.5 py-0.5 rounded-sm">
+                  <div className="absolute top-2 right-2 text-[10px] font-mono text-neon-cyan bg-[#00f5ff15] px-1.5 py-0.5 rounded-xs">
                     ACTIVE
                   </div>
                 )}

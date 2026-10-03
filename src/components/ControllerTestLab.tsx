@@ -67,7 +67,7 @@ const Stick: React.FC<{ x: number; y: number; color: string; label: string }> = 
 
 const Btn: React.FC<{ label: string; pressed: boolean; color: string }> = ({ label, pressed, color }) => (
   <div
-    className="px-3 py-1.5 text-xs font-mono border rounded-sm text-center transition-all duration-75 min-w-[3rem]"
+    className="px-3 py-1.5 text-xs font-mono border rounded-xs text-center transition-all duration-75 min-w-12"
     style={{
       borderColor: pressed ? color : '#333344',
       color: pressed ? color : '#555566',
@@ -161,13 +161,13 @@ export const ControllerTestLab: React.FC<Props> = ({ controllers, onBack }) => {
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#00f5ff20]">
         <button
-          className="text-slate-500 hover:text-[#00f5ff] transition-colors font-mono text-sm"
+          className="text-slate-500 hover:text-neon-cyan transition-colors font-mono text-sm"
           onClick={() => { audio.play('click'); onBack() }}
         >
           ← Back
         </button>
         <div className="text-center">
-          <h2 className="font-display text-[#00f5ff] tracking-widest text-sm uppercase">
+          <h2 className="font-display text-neon-cyan tracking-widest text-sm uppercase">
             Controller Test Lab
           </h2>
           <p className="text-slate-600 text-xs font-mono mt-0.5">
@@ -216,7 +216,7 @@ export const ControllerTestLab: React.FC<Props> = ({ controllers, onBack }) => {
                 ['1-5', 'Quick Select Game'],
               ].map(([key, val]) => (
                 <React.Fragment key={key}>
-                  <span className="text-[#00f5ff]">{key}</span>
+                  <span className="text-neon-cyan">{key}</span>
                   <span className="text-slate-500">{val}</span>
                 </React.Fragment>
               ))}
@@ -229,13 +229,13 @@ export const ControllerTestLab: React.FC<Props> = ({ controllers, onBack }) => {
 }
 
 const StatusBadge: React.FC<{ label: string; ok?: boolean; value?: string }> = ({ label, ok, value }) => (
-  <div className={`flex items-center gap-1.5 px-3 py-1 text-xs font-mono border rounded-sm ${
+  <div className={`flex items-center gap-1.5 px-3 py-1 text-xs font-mono border rounded-xs ${
     ok === undefined ? 'border-slate-700 text-slate-400' :
-    ok ? 'border-[#39ff1440] text-[#39ff14] bg-[#39ff1410]' :
-    'border-[#ff006e40] text-[#ff006e] bg-[#ff006e10]'
+    ok ? 'border-[#39ff1440] text-neon-green bg-[#39ff1410]' :
+    'border-[#ff006e40] text-neon-pink bg-[#ff006e10]'
   }`}>
     {ok !== undefined && (
-      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-[#39ff14]' : 'bg-[#ff006e]'}`} />
+      <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-neon-green' : 'bg-neon-pink'}`} />
     )}
     <span>{label}</span>
     {value && <span className="text-slate-500 ml-1">{value}</span>}

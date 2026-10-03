@@ -18,7 +18,6 @@ export class ThreeScene {
   readonly interactionSystem: InteractionSystem
   readonly clock: THREE.Clock
 
-  private animFrameId: number | null = null
   private lastTime = 0
   private frameCount = 0
   private fpsTimer = 0
@@ -75,7 +74,7 @@ export class ThreeScene {
   }
 
   private loop() {
-    this.animFrameId = this.renderer.setAnimationLoop((time: number) => {
+    this.renderer.setAnimationLoop((time: number) => {
       const delta = Math.min((time - this.lastTime) / 1000, 0.05)
       this.lastTime = time
 
@@ -104,9 +103,6 @@ export class ThreeScene {
   stop() {
     this.isRunning = false
     this.renderer.setAnimationLoop(null)
-    if (this.animFrameId !== null) {
-      this.animFrameId = null
-    }
   }
 
   setWorldConfig(config: WorldConfig) {

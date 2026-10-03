@@ -41,7 +41,7 @@ export const VRButton: React.FC<Props> = ({ onEnterVR, onExitVR }) => {
   if (!xr.isSupported) {
     return (
       <div className="flex flex-col items-center gap-3">
-        <div className="px-6 py-3 border border-slate-600 text-slate-500 font-display text-sm tracking-widest uppercase rounded-sm">
+        <div className="px-6 py-3 border border-slate-600 text-slate-500 font-display text-sm tracking-widest uppercase rounded-xs">
           VR Not Available
         </div>
         <p className="text-slate-600 text-xs text-center max-w-xs">

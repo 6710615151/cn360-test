@@ -114,12 +114,12 @@ export const XRDiagnostics: React.FC<Props> = ({ onBack }) => {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#00f5ff20]">
         <button
-          className="text-slate-500 hover:text-[#00f5ff] transition-colors font-mono text-sm"
+          className="text-slate-500 hover:text-neon-cyan transition-colors font-mono text-sm"
           onClick={() => { audio.play('click'); onBack() }}
         >
           ← Back
         </button>
-        <h2 className="font-display text-[#00f5ff] tracking-widest text-sm uppercase">
+        <h2 className="font-display text-neon-cyan tracking-widest text-sm uppercase">
           XR Diagnostics
         </h2>
         <div className="w-12" />
@@ -154,14 +154,14 @@ export const XRDiagnostics: React.FC<Props> = ({ onBack }) => {
           {/* Error message */}
           {xr.errorMessage && (
             <div className="mt-4 panel p-4 border-[#ff006e40]">
-              <p className="text-[10px] font-mono text-[#ff006e] tracking-wider uppercase mb-1">Error</p>
+              <p className="text-[10px] font-mono text-neon-pink tracking-wider uppercase mb-1">Error</p>
               <p className="text-xs font-mono text-slate-400">{xr.errorMessage}</p>
             </div>
           )}
 
           {/* Pico 4 hint */}
           <div className="mt-6 panel p-4 border-[#b400ff30]">
-            <p className="text-[10px] font-mono text-[#b400ff] tracking-wider uppercase mb-2">Pico 4 Setup</p>
+            <p className="text-[10px] font-mono text-neon-purple tracking-wider uppercase mb-2">Pico 4 Setup</p>
             <ol className="text-xs font-mono text-slate-500 space-y-1 list-decimal list-inside">
               <li>Deploy to Vercel (HTTPS required)</li>
               <li>Open Pico Browser on your Pico 4</li>

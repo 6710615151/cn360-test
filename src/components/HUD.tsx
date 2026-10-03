@@ -22,16 +22,16 @@ export const HUD: React.FC<Props> = ({ onPause, onExit }) => {
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 pointer-events-none select-none">
       {/* Game title + score */}
       <div className="panel px-5 py-2 flex items-center gap-6">
-        <span className="font-display text-xs text-[#00f5ff] tracking-widest uppercase">{gameName}</span>
+        <span className="font-display text-xs text-neon-cyan tracking-widest uppercase">{gameName}</span>
         <div className="w-px h-4 bg-[#00f5ff30]" />
         <div className="flex items-center gap-1">
           <span className="text-slate-500 text-xs font-mono">SCORE</span>
-          <span className="text-[#00f5ff] font-bold font-mono text-sm">{score.score.toLocaleString()}</span>
+          <span className="text-neon-cyan font-bold font-mono text-sm">{score.score.toLocaleString()}</span>
         </div>
         {score.combo > 1 && (
           <>
             <div className="w-px h-4 bg-[#00f5ff30]" />
-            <span className="text-[#ff006e] font-bold font-mono text-xs animate-pulse">
+            <span className="text-neon-pink font-bold font-mono text-xs animate-pulse">
               x{score.combo} COMBO
             </span>
           </>
@@ -39,7 +39,7 @@ export const HUD: React.FC<Props> = ({ onPause, onExit }) => {
         {score.lives > 0 && (
           <>
             <div className="w-px h-4 bg-[#00f5ff30]" />
-            <span className="text-[#ff006e] font-mono text-xs">
+            <span className="text-neon-pink font-mono text-xs">
               {'♥'.repeat(score.lives)}{'♡'.repeat(Math.max(0, 3 - score.lives))}
             </span>
           </>
@@ -53,7 +53,7 @@ export const HUD: React.FC<Props> = ({ onPause, onExit }) => {
         {score.level > 1 && (
           <>
             <div className="w-px h-4 bg-[#00f5ff30]" />
-            <span className="text-[#b400ff] font-mono text-xs">LVL {score.level}</span>
+            <span className="text-neon-purple font-mono text-xs">LVL {score.level}</span>
           </>
         )}
       </div>
@@ -62,14 +62,14 @@ export const HUD: React.FC<Props> = ({ onPause, onExit }) => {
       <div className="flex gap-2 pointer-events-auto">
         <button
           className="px-4 py-1 text-xs font-mono border border-[#00f5ff30] text-slate-400
-                     hover:border-[#00f5ff] hover:text-[#00f5ff] transition-all bg-[#050508cc] rounded-sm"
+                     hover:border-neon-cyan hover:text-neon-cyan transition-all bg-[#050508cc] rounded-xs"
           onClick={() => { audio.play('click'); onPause() }}
         >
           {isPaused ? '▶ Resume' : '⏸ Pause'}
         </button>
         <button
           className="px-4 py-1 text-xs font-mono border border-[#ff006e30] text-slate-400
-                     hover:border-[#ff006e] hover:text-[#ff006e] transition-all bg-[#050508cc] rounded-sm"
+                     hover:border-neon-pink hover:text-neon-pink transition-all bg-[#050508cc] rounded-xs"
           onClick={() => { audio.play('click'); onExit() }}
         >
           ✕ Exit

@@ -81,7 +81,7 @@ export class XRManager {
 
     // Three.js WebXR integration
     this.renderer.xr.enabled = true
-    await this.renderer.xr.setSession(session as unknown as THREE.XRSession)
+    await this.renderer.xr.setSession(session)
 
     // Attempt local-floor reference space, fall back to local
     try {
@@ -108,7 +108,7 @@ export class XRManager {
     this.onSessionStart?.()
   }
 
-  private handleInputSourcesChange = (event: XRInputSourceChangeEvent) => {
+  private handleInputSourcesChange = (event: XRInputSourcesChangeEvent) => {
     // Build current list
     const sources: XRInputSource[] = []
     if (this.session) {
@@ -157,7 +157,7 @@ export class XRManager {
   getViewerPose(frame?: XRFrame): XRViewerPose | null {
     if (!frame || !this.referenceSpace) return null
     try {
-      return frame.getViewerPose(this.referenceSpace)
+      return frame.getViewerPose(this.referenceSpace) ?? null
     } catch {
       return null
     }
@@ -166,7 +166,7 @@ export class XRManager {
   getPose(space: XRSpace, frame?: XRFrame): XRPose | null {
     if (!frame || !this.referenceSpace) return null
     try {
-      return frame.getPose(space, this.referenceSpace)
+      return frame.getPose(space, this.referenceSpace) ?? null
     } catch {
       return null
     }

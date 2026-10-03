@@ -16,9 +16,9 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
       <input
         type="range" min={0} max={1} step={0.05} value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
-        className="flex-1 accent-[#00f5ff] h-1"
+        className="flex-1 accent-neon-cyan h-1"
       />
-      <span className="text-[#00f5ff] font-mono text-xs w-10 text-right">{Math.round(value * 100)}%</span>
+      <span className="text-neon-cyan font-mono text-xs w-10 text-right">{Math.round(value * 100)}%</span>
     </div>
   )
 
@@ -27,9 +27,9 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
       <span className="text-slate-400 font-mono text-xs">{label}</span>
       <button
         onClick={() => { audio.play('click'); onChange(!value) }}
-        className={`px-3 py-1 text-xs font-mono border rounded-sm transition-all ${
+        className={`px-3 py-1 text-xs font-mono border rounded-xs transition-all ${
           value
-            ? 'border-[#00f5ff] text-[#00f5ff] bg-[#00f5ff15]'
+            ? 'border-neon-cyan text-neon-cyan bg-[#00f5ff15]'
             : 'border-slate-700 text-slate-600'
         }`}
       >
@@ -42,12 +42,12 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-6 py-4 border-b border-[#00f5ff20]">
         <button
-          className="text-slate-500 hover:text-[#00f5ff] transition-colors font-mono text-sm"
+          className="text-slate-500 hover:text-neon-cyan transition-colors font-mono text-sm"
           onClick={() => { audio.play('click'); onBack() }}
         >
           ← Back
         </button>
-        <h2 className="font-display text-[#00f5ff] tracking-widest text-sm uppercase">Settings</h2>
+        <h2 className="font-display text-neon-cyan tracking-widest text-sm uppercase">Settings</h2>
         <div className="w-12" />
       </div>
 
@@ -55,7 +55,7 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
         <div className="space-y-6">
           {/* Audio */}
           <section>
-            <h3 className="font-display text-xs text-[#b400ff] tracking-widest uppercase mb-3">Audio</h3>
+            <h3 className="font-display text-xs text-neon-purple tracking-widest uppercase mb-3">Audio</h3>
             <div className="space-y-3">
               <Slider label="Master Volume" value={settings.masterVolume}
                 onChange={v => { updateSettings({ masterVolume: v }); audio.setMasterVolume(v) }} />
@@ -66,16 +66,16 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
 
           {/* VR / Locomotion */}
           <section>
-            <h3 className="font-display text-xs text-[#b400ff] tracking-widest uppercase mb-3">Locomotion</h3>
+            <h3 className="font-display text-xs text-neon-purple tracking-widest uppercase mb-3">Locomotion</h3>
             <div className="space-y-3">
               {(['teleport', 'thumbstick', 'none'] as const).map(mode => (
                 <div key={mode} className="flex items-center justify-between">
                   <span className="text-slate-400 font-mono text-xs capitalize">{mode}</span>
                   <button
                     onClick={() => { updateSettings({ locomotionMode: mode }); audio.play('click') }}
-                    className={`px-3 py-1 text-xs font-mono border rounded-sm transition-all ${
+                    className={`px-3 py-1 text-xs font-mono border rounded-xs transition-all ${
                       settings.locomotionMode === mode
-                        ? 'border-[#00f5ff] text-[#00f5ff] bg-[#00f5ff15]'
+                        ? 'border-neon-cyan text-neon-cyan bg-[#00f5ff15]'
                         : 'border-slate-700 text-slate-600'
                     }`}
                   >
@@ -88,7 +88,7 @@ export const SettingsPanel: React.FC<Props> = ({ onBack }) => {
 
           {/* Graphics */}
           <section>
-            <h3 className="font-display text-xs text-[#b400ff] tracking-widest uppercase mb-3">Graphics</h3>
+            <h3 className="font-display text-xs text-neon-purple tracking-widest uppercase mb-3">Graphics</h3>
             <div className="space-y-3">
               <Toggle label="Shadows" value={settings.shadowsEnabled}
                 onChange={v => updateSettings({ shadowsEnabled: v })} />

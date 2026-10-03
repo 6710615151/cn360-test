@@ -91,19 +91,19 @@ export const XRDebugPanel: React.FC<Props> = ({ controllers }) => {
       <button
         onClick={() => setDebugMode(!debugMode)}
         className="fixed top-4 right-4 z-50 px-3 py-1.5 text-xs font-mono border border-[#00f5ff40] 
-                   text-[#00f5ff] bg-[#050508cc] hover:border-[#00f5ff] hover:bg-[#00f5ff15]
-                   transition-all duration-150 rounded-sm"
+                   text-neon-cyan bg-[#050508cc] hover:border-neon-cyan hover:bg-[#00f5ff15]
+                   transition-all duration-150 rounded-xs"
       >
         {debugMode ? '✕ DEBUG' : '⌥ DEBUG'}
       </button>
 
       {debugMode && (
         <div className="fixed top-14 right-4 z-50 w-64 max-h-[calc(100vh-5rem)] overflow-y-auto
-                        bg-[#050508e8] border border-[#00f5ff30] rounded-sm text-xs font-mono
-                        backdrop-blur-sm select-none">
+                        bg-[#050508e8] border border-[#00f5ff30] rounded-xs text-xs font-mono
+                        backdrop-blur-xs select-none">
 
           {/* XR Status */}
-          <div className="px-3 py-1.5 border-b border-[#00f5ff20] text-[#00f5ff] font-bold tracking-wider text-[10px] uppercase">
+          <div className="px-3 py-1.5 border-b border-[#00f5ff20] text-neon-cyan font-bold tracking-wider text-[10px] uppercase">
             XR Status
           </div>
           <div className="px-3 py-1.5 space-y-0.5">
@@ -113,7 +113,7 @@ export const XRDebugPanel: React.FC<Props> = ({ controllers }) => {
           </div>
 
           {/* Headset */}
-          <div className="px-3 py-1.5 border-y border-[#00f5ff20] text-[#b400ff] font-bold tracking-wider text-[10px] uppercase">
+          <div className="px-3 py-1.5 border-y border-[#00f5ff20] text-neon-purple font-bold tracking-wider text-[10px] uppercase">
             Headset {snap?.headConnected ? '● VR' : '○ Desktop'}
           </div>
           {snap && (
@@ -134,7 +134,7 @@ export const XRDebugPanel: React.FC<Props> = ({ controllers }) => {
           <ControllerBlock title="Right Controller" data={snap?.right} color="pink" />
 
           {/* Performance */}
-          <div className="px-3 py-1.5 border-t border-[#00f5ff20] text-[#39ff14] font-bold tracking-wider text-[10px] uppercase">
+          <div className="px-3 py-1.5 border-t border-[#00f5ff20] text-neon-green font-bold tracking-wider text-[10px] uppercase">
             Performance
           </div>
           <div className="px-3 py-1.5 pb-3 space-y-0.5">
@@ -152,7 +152,7 @@ export const XRDebugPanel: React.FC<Props> = ({ controllers }) => {
 const Row: React.FC<{ label: string; value: string; ok?: boolean }> = ({ label, value, ok }) => (
   <div className="flex justify-between">
     <span className="text-slate-500">{label}</span>
-    <span className={ok === undefined ? 'text-slate-200' : ok ? 'text-[#39ff14]' : 'text-[#ff006e]'}>
+    <span className={ok === undefined ? 'text-slate-200' : ok ? 'text-neon-green' : 'text-neon-pink'}>
       {value}
     </span>
   </div>
