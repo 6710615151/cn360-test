@@ -53,8 +53,11 @@ export class VRMenu {
     }
     // Games call interaction.clear() on dispose, so re-register if our ids vanished
     const lostRegistration = this.registeredIds.some(id => !this.interaction.getAll().some(i => i.userData['vrMenuId'] === id))
-    // Headset pose may not exist on the first XR frame — re-place once it does
-    if (this.root.visible && !this.placedFromHeadset && headsetRuntime.connected) this.placeInFrontOfHead()
+    // Headset pose may not exist on the first XR frame — re-place once it does,
+    // and bring the panel back whenever it drifts out of view
+    if (this.root.visible && headsetRuntime.connected && (!this.placedFromHeadset || this.isOutOfView())) {
+      this.placeInFrontOfHead()
+    }
     if (screen.key === this.currentKey && this.root.visible && !lostRegistration) return
 
     const wasVisible = this.root.visible
@@ -67,6 +70,26 @@ export class VRMenu {
     this.root.visible = false
     this.clear()
     this.currentKey = null
+  }
+
+  /** True when the panel is outside a comfortable cone in front of the head, or too far/near */
+  private isOutOfView(): boolean {
+    const head = headsetRuntime.position
+    const toMenu = new THREE.Vector3().subVectors(this.root.position, head)
+    const dist = toMenu.length()
+    if (dist < 0.4 || dist > 3) return true
+    if (Math.abs(toMenu.y) > 1) return true
+    toMenu.y = 0
+    const fwd = headsetRuntime.direction.clone()
+    fwd.y = 0
+    if (toMenu.lengthSq() < 1e-4 || fwd.lengthSq() < 1e-4) return false
+    return toMenu.normalize().dot(fwd.normalize()) < Math.cos(THREE.MathUtils.degToRad(60))
+  }
+
+  getDebugInfo() {
+    const p = this.root.position
+    return `menu ${this.root.visible ? 'on' : 'off'} key=${this.currentKey} placed=${this.placedFromHeadset} ` +
+      `pos(${p.x.toFixed(2)},${p.y.toFixed(2)},${p.z.toFixed(2)}) btns=${this.registeredIds.length}`
   }
 
   private placeInFrontOfHead() {
@@ -82,7 +105,7 @@ export class VRMenu {
     dir.y = 0
     if (dir.lengthSq() < 1e-4) dir.set(0, 0, -1)
     dir.normalize()
-    const eyeY = pos.y > 0.5 ? pos.y : 1.6
+    const eyeY = pos.y
     this.root.position.set(pos.x + dir.x * DISTANCE, eyeY - 0.15, pos.z + dir.z * DISTANCE)
     this.root.lookAt(pos.x, eyeY - 0.15, pos.z)
   }

@@ -16,6 +16,7 @@ import { PointerManager } from '../vr/PointerManager'
 import { TeleportSystem } from '../vr/TeleportSystem'
 import { GrabSystem } from '../vr/GrabSystem'
 import { VRMenu, VRMenuScreen } from '../vr/VRMenu'
+import { VRDebugLabel } from '../vr/VRDebugLabel'
 
 // App systems
 import { GameManager } from '../games/GameManager'
@@ -128,6 +129,9 @@ export const App: React.FC = () => {
 
     // In-VR menu (HTML overlays are invisible inside an immersive session)
     const vrMenu = new VRMenu(world.scene, interactionSystem)
+    const vrDebug = new VRDebugLabel()
+    let vrMenuError = ''
+    let vrDebugTimer = 0
     const startGame = async (id: GameId) => {
       useAppStore.getState().navigateTo('playing')
       await gameManager.loadGame(id)
@@ -209,7 +213,30 @@ export const App: React.FC = () => {
           if (isPaused) gameManager.resumeGame()
           else gameManager.pauseGame()
         }
-        vrMenu.show(getVRMenuScreen())
+        try {
+          vrMenu.show(getVRMenuScreen())
+        } catch (e) {
+          if (!vrMenuError) console.error('[VRMenu]', e)
+          vrMenuError = String(e)
+        }
+
+        // In-headset debug readout on the left controller
+        const leftCtrl = controllerManager.getThreeController('left')
+        if (leftCtrl && vrDebug.mesh.parent !== leftCtrl) leftCtrl.add(vrDebug.mesh)
+        vrDebugTimer += delta
+        if (vrDebugTimer > 0.5) {
+          vrDebugTimer = 0
+          const h = headsetManager.getPosition(), d = headsetManager.getDirection()
+          const xr = useAppStore.getState().xr
+          vrDebug.setLines([
+            `view=${view} paused=${isPaused} ref=${xr.referenceSpaceType}`,
+            `head (${h.x.toFixed(2)},${h.y.toFixed(2)},${h.z.toFixed(2)}) ok=${headsetManager.isConnected()}`,
+            `dir (${d.x.toFixed(2)},${d.y.toFixed(2)},${d.z.toFixed(2)})`,
+            vrMenu.getDebugInfo(),
+            `L=${controllerManager.left.connected} R=${controllerManager.right.connected}`,
+            vrMenuError ? `ERR ${vrMenuError}` : 'no errors',
+          ])
+        }
       } else {
         vrMenu.show(null)
       }
@@ -248,6 +275,7 @@ export const App: React.FC = () => {
       teleportSystem.dispose()
       pointerManager.dispose()
       vrMenu.dispose()
+      vrDebug.dispose()
       controllerManager.dispose()
       gameManager.dispose()
       threeScene.dispose()
