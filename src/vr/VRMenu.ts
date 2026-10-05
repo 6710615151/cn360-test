@@ -182,7 +182,10 @@ export class VRMenu {
       if (s.sub) {
         ctx.font = '28px sans-serif'
         ctx.globalAlpha = 0.75
-        ctx.fillText(s.sub, canvas.width / 2, canvas.height * 0.76)
+        const maxW = canvas.width - 40
+        let sub = s.sub
+        while (sub.length > 1 && ctx.measureText(sub).width > maxW) sub = sub.slice(0, -2) + '…'
+        ctx.fillText(sub, canvas.width / 2, canvas.height * 0.76)
         ctx.globalAlpha = 1
       }
       tex.needsUpdate = true

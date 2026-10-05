@@ -64,10 +64,12 @@ export class XRManager {
       // Request immersive-vr with optional features for Pico 4
       const session = await navigator.xr.requestSession('immersive-vr', {
         requiredFeatures: ['local-floor'],
+        // No 'layers': when granted, three.js renders through XRProjectionLayer +
+        // a multisampled render target, which shows a blank view on Pico Browser.
+        // The plain XRWebGLLayer path works on every headset.
         optionalFeatures: [
           'bounded-floor',
           'hand-tracking',
-          'layers',
         ],
       })
 
