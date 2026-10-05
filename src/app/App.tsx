@@ -15,6 +15,7 @@ import { InputManager } from '../vr/InputManager'
 import { PointerManager } from '../vr/PointerManager'
 import { TeleportSystem } from '../vr/TeleportSystem'
 import { GrabSystem } from '../vr/GrabSystem'
+import { VRMenu, VRMenuScreen } from '../vr/VRMenu'
 
 // App systems
 import { GameManager } from '../games/GameManager'
@@ -101,6 +102,7 @@ export const App: React.FC = () => {
 
     const pointerManager = new PointerManager(controllerManager, interactionSystem, world.scene)
     pointerManager.setCamera(cameraManager.camera)
+    pointerManager.setupWithControllers()
     rt.current.pointerManager = pointerManager
 
     const teleportSystem = new TeleportSystem(world.scene, inputManager, cameraManager.camera)
@@ -124,6 +126,52 @@ export const App: React.FC = () => {
     const gameManager = new GameManager(gameCtx)
     rt.current.gameManager = gameManager
 
+    // In-VR menu (HTML overlays are invisible inside an immersive session)
+    const vrMenu = new VRMenu(world.scene, interactionSystem)
+    const startGame = async (id: GameId) => {
+      useAppStore.getState().navigateTo('playing')
+      await gameManager.loadGame(id)
+      gameManager.startGame()
+    }
+    const gameMeta = GameRegistry.getAllMeta()
+    const getVRMenuScreen = (): VRMenuScreen | null => {
+      const { view, isPaused, navigateTo } = useAppStore.getState()
+      if (view === 'playing' && !isPaused) return null
+      if (view === 'playing' || view === 'paused') {
+        return {
+          key: 'paused',
+          title: 'PAUSED',
+          buttons: [
+            { id: 'resume', label: '▶ Resume', onSelect: () => gameManager.resumeGame() },
+            { id: 'exit-game', label: '✕ Exit Game', color: '#ff006e', onSelect: () => gameManager.exitGame() },
+          ],
+        }
+      }
+      if (view === 'game-selector') {
+        return {
+          key: 'game-selector',
+          title: 'SELECT GAME',
+          buttons: [
+            ...gameMeta.map(m => ({
+              id: `game-${m.id}`,
+              label: `${m.thumbnail} ${m.name}`,
+              sublabel: m.description,
+              onSelect: () => { audio.play('click'); void startGame(m.id as GameId) },
+            })),
+            { id: 'back', label: '← Back', color: '#b400ff', onSelect: () => navigateTo('main-menu') },
+          ],
+        }
+      }
+      return {
+        key: 'main-menu',
+        title: 'PICO 4 PLAYGROUND',
+        buttons: [
+          { id: 'play', label: '▶ Play Games', onSelect: () => { audio.play('click'); navigateTo('game-selector') } },
+          { id: 'exit-vr', label: '✕ Exit VR', color: '#ff006e', onSelect: () => { void xrManager.endSession() } },
+        ],
+      }
+    }
+
     // Desktop simulation
     const sim = new DesktopSimulation(cameraManager.camera, inputManager, headsetManager, canvas)
     sim.enable()
@@ -144,24 +192,39 @@ export const App: React.FC = () => {
       if (xrManager.isActive()) {
         if (settings.locomotionMode === 'teleport') {
           const dest = teleportSystem.update(delta)
-          if (dest) {
-            cameraManager.camera.position.set(dest.x, dest.y + 1.6, dest.z)
-          }
+          if (dest) xrManager.teleportTo(dest, headsetManager.getPosition())
         } else if (settings.locomotionMode === 'thumbstick') {
-          applyThumbstickLocomotion(delta, inputManager, cameraManager.camera)
+          applyThumbstickLocomotion(delta, inputManager, headsetManager, xrManager)
         }
+        applySnapTurn(inputManager, headsetManager, xrManager, settings.snapTurnAngle)
       } else {
         sim.update(delta)
       }
 
+      // VR menu + pause toggle (B / Y)
+      if (xrManager.isActive()) {
+        const { view, isPaused } = useAppStore.getState()
+        const pausePressed = inputManager.getButtonDown('secondary', 'right') || inputManager.getButtonDown('secondary', 'left')
+        if (pausePressed && view === 'playing') {
+          if (isPaused) gameManager.resumeGame()
+          else gameManager.pauseGame()
+        }
+        vrMenu.show(getVRMenuScreen())
+      } else {
+        vrMenu.show(null)
+      }
+
       // Pointer
       pointerManager.update(xrManager.isActive())
-      // Pointer select via trigger
-      if (inputManager.getButtonDown('trigger', 'right')) {
-        pointerManager.selectHovered(xrManager.isActive() ? 'right' : 'desktop')
-      }
-      if (inputManager.getButtonUp('trigger', 'right')) {
-        pointerManager.releaseSelected(xrManager.isActive() ? 'right' : 'desktop')
+      // Pointer select via trigger (either hand in VR)
+      if (xrManager.isActive()) {
+        for (const hand of ['left', 'right'] as const) {
+          if (inputManager.getButtonDown('trigger', hand)) pointerManager.selectHovered(hand)
+          if (inputManager.getButtonUp('trigger', hand)) pointerManager.releaseSelected(hand)
+        }
+      } else {
+        if (inputManager.getButtonDown('trigger', 'right')) pointerManager.selectHovered('desktop')
+        if (inputManager.getButtonUp('trigger', 'right')) pointerManager.releaseSelected('desktop')
       }
 
       // Grab
@@ -184,6 +247,7 @@ export const App: React.FC = () => {
       sim.dispose()
       teleportSystem.dispose()
       pointerManager.dispose()
+      vrMenu.dispose()
       controllerManager.dispose()
       gameManager.dispose()
       threeScene.dispose()
@@ -358,21 +422,35 @@ export const App: React.FC = () => {
 function applyThumbstickLocomotion(
   delta: number,
   input: InputManager,
-  camera: THREE.PerspectiveCamera
+  headset: HeadsetManager,
+  xr: XRManager,
 ) {
   const x = input.getAxis('leftX')
   const z = input.getAxis('leftY')
   if (Math.abs(x) < 0.1 && Math.abs(z) < 0.1) return
 
-  const forward = new THREE.Vector3()
-  camera.getWorldDirection(forward)
+  const forward = headset.getDirection().clone()
   forward.y = 0
+  if (forward.lengthSq() < 1e-4) return
   forward.normalize()
   const right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0))
 
   const speed = 3.0
-  camera.position.addScaledVector(right, x * speed * delta)
-  camera.position.addScaledVector(forward, -z * speed * delta)
+  const move = new THREE.Vector3()
+    .addScaledVector(right, x * speed * delta)
+    .addScaledVector(forward, -z * speed * delta)
+  xr.moveOrigin(move)
+}
+
+// Right thumbstick flick left/right → snap turn
+let snapTurnArmed = true
+function applySnapTurn(input: InputManager, headset: HeadsetManager, xr: XRManager, angleDeg: number) {
+  const x = input.getAxis('rightX')
+  if (Math.abs(x) < 0.3) { snapTurnArmed = true; return }
+  if (!snapTurnArmed || Math.abs(x) < 0.7) return
+  snapTurnArmed = false
+  const angle = -Math.sign(x) * THREE.MathUtils.degToRad(angleDeg)
+  xr.rotateOrigin(angle, headset.getPosition())
 }
 
 const PauseOverlay: React.FC<{ onResume: () => void; onExit: () => void }> = ({

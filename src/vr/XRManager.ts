@@ -21,6 +21,12 @@ export class XRManager {
   private onInputSourcesChange?: (sources: XRInputSource[]) => void
   private inputSources: XRInputSource[] = []
 
+  // Player origin (locomotion). In WebXR the headset owns the camera pose, so we
+  // move the player by offsetting the reference space instead of the camera.
+  private baseReferenceSpace: XRReferenceSpace | null = null
+  private originPosition = new THREE.Vector3()
+  private originYaw = 0
+
   constructor(opts: XRManagerOptions) {
     this.renderer = opts.renderer
     this.camera = opts.camera
@@ -79,9 +85,17 @@ export class XRManager {
   private async setupSession(session: XRSession) {
     this.session = session
 
+    // Attach listeners BEFORE awaiting anything: Pico fires 'inputsourceschange'
+    // for already-connected controllers during setSession(), and we'd miss it.
+    session.addEventListener('inputsourceschange', this.handleInputSourcesChange)
+    session.addEventListener('end', this.handleSessionEnd)
+
     // Three.js WebXR integration
     this.renderer.xr.enabled = true
     await this.renderer.xr.setSession(session)
+    this.baseReferenceSpace = this.renderer.xr.getReferenceSpace()
+    this.originPosition.set(0, 0, 0)
+    this.originYaw = 0
 
     // Attempt local-floor reference space, fall back to local
     try {
@@ -99,6 +113,7 @@ export class XRManager {
     // Listen for input source changes
     session.addEventListener('inputsourceschange', this.handleInputSourcesChange)
     session.addEventListener('end', this.handleSessionEnd)
+    this.syncInputSources()
 
     useAppStore.getState().updateXR({
       isSessionActive: true,
@@ -108,28 +123,26 @@ export class XRManager {
     this.onSessionStart?.()
   }
 
-  private handleInputSourcesChange = (event: XRInputSourcesChangeEvent) => {
-    // Build current list
-    const sources: XRInputSource[] = []
-    if (this.session) {
-      for (const source of this.session.inputSources) {
-        sources.push(source)
-      }
-    }
-    this.inputSources = sources
+  private handleInputSourcesChange = () => {
+    this.syncInputSources()
+  }
+
+  private syncInputSources() {
+    this.inputSources = this.session ? Array.from(this.session.inputSources) : []
 
     let hasLeft = false, hasRight = false
-    for (const s of sources) {
+    for (const s of this.inputSources) {
       if (s.handedness === 'left') hasLeft = true
       if (s.handedness === 'right') hasRight = true
     }
     useAppStore.getState().updateXR({ hasLeft, hasRight })
-    this.onInputSourcesChange?.(sources)
+    this.onInputSourcesChange?.(this.inputSources)
   }
 
   private handleSessionEnd = () => {
     this.session = null
     this.referenceSpace = null
+    this.baseReferenceSpace = null
     this.inputSources = []
     this.renderer.xr.enabled = false
     useAppStore.getState().updateXR({
@@ -150,23 +163,67 @@ export class XRManager {
 
   getSession() { return this.session }
   getReferenceSpace() { return this.referenceSpace }
-  getInputSources() { return this.inputSources }
+  getInputSources() {
+    return this.session ? Array.from(this.session.inputSources) : this.inputSources
+  }
   isActive() { return this.session !== null }
+
+  // ─── Locomotion ─────────────────────────────────────────────────────────────
+
+  /** Move the player origin by a world-space delta */
+  moveOrigin(delta: THREE.Vector3) {
+    this.originPosition.add(delta)
+    this.applyOrigin()
+  }
+
+  /** Teleport so the player's head (x/z) lands on `point`, feet at point.y */
+  teleportTo(point: THREE.Vector3, headWorld: THREE.Vector3) {
+    this.originPosition.x += point.x - headWorld.x
+    this.originPosition.z += point.z - headWorld.z
+    this.originPosition.y = point.y
+    this.applyOrigin()
+  }
+
+  /** Rotate the player around the head position (snap turn) */
+  rotateOrigin(angle: number, headWorld: THREE.Vector3) {
+    const offset = new THREE.Vector3().subVectors(this.originPosition, headWorld)
+    offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), angle)
+    this.originPosition.copy(headWorld).add(offset)
+    this.originYaw += angle
+    this.applyOrigin()
+  }
+
+  private applyOrigin() {
+    if (!this.baseReferenceSpace) return
+    // Poses in the offset space = inverse(T) * base pose, so T is the inverse of the origin transform
+    const origin = new THREE.Matrix4().compose(
+      this.originPosition,
+      new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), this.originYaw),
+      new THREE.Vector3(1, 1, 1),
+    )
+    const inv = origin.invert()
+    const p = new THREE.Vector3(), q = new THREE.Quaternion(), sc = new THREE.Vector3()
+    inv.decompose(p, q, sc)
+    const transform = new XRRigidTransform({ x: p.x, y: p.y, z: p.z }, { x: q.x, y: q.y, z: q.z, w: q.w })
+    this.renderer.xr.setReferenceSpace(this.baseReferenceSpace.getOffsetReferenceSpace(transform))
+  }
 
   // Called each frame — read pose from XRFrame via Three.js xr manager
   getViewerPose(frame?: XRFrame): XRViewerPose | null {
-    if (!frame || !this.referenceSpace) return null
+    const space = this.getReferenceSpace()
+    if (!frame || !space) return null
     try {
-      return frame.getViewerPose(this.referenceSpace) ?? null
+      return frame.getViewerPose(space) ?? null
     } catch {
       return null
     }
   }
 
   getPose(space: XRSpace, frame?: XRFrame): XRPose | null {
-    if (!frame || !this.referenceSpace) return null
+    const refSpace = this.getReferenceSpace()
+    if (!frame || !refSpace) return null
     try {
-      return frame.getPose(space, this.referenceSpace) ?? null
+      return frame.getPose(space, refSpace) ?? null
     } catch {
       return null
     }

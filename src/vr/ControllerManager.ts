@@ -76,23 +76,45 @@ export class ControllerManager {
   setupWithRenderer(renderer: THREE.WebGLRenderer, scene: THREE.Scene) {
     this.scene = scene
 
-    // Three.js provides XRTargetRaySpace via renderer.xr.getController(index)
-    this.threeControllerLeft = renderer.xr.getController(0)
-    this.threeControllerRight = renderer.xr.getController(1)
-    this.gripLeft = renderer.xr.getControllerGrip(0)
-    this.gripRight = renderer.xr.getControllerGrip(1)
+    // Three.js controller index follows session.inputSources order, which is NOT
+    // guaranteed to be [left, right] (Pico often reports right first). Create both,
+    // then assign them to a hand by the handedness reported on 'connected'.
+    const rays = [renderer.xr.getController(0), renderer.xr.getController(1)]
+    const grips = [renderer.xr.getControllerGrip(0), renderer.xr.getControllerGrip(1)]
+    rays.forEach(r => scene.add(r))
+    grips.forEach(g => scene.add(g))
 
-    // Add to scene
-    scene.add(this.threeControllerLeft)
-    scene.add(this.threeControllerRight)
-    scene.add(this.gripLeft)
-    scene.add(this.gripRight)
+    this.threeControllerLeft = rays[0]
+    this.threeControllerRight = rays[1]
+    this.gripLeft = grips[0]
+    this.gripRight = grips[1]
 
     // Build simple controller meshes
     this.leftMesh = this.buildControllerMesh(0x00f5ff)
     this.rightMesh = this.buildControllerMesh(0xff006e)
     this.threeControllerLeft.add(this.leftMesh)
     this.threeControllerRight.add(this.rightMesh)
+
+    rays.forEach((ray) => {
+      ray.addEventListener('connected', (event) => {
+        const handedness = (event as unknown as { data: XRInputSource }).data?.handedness
+        if (handedness === 'left' || handedness === 'right') this.assignHand(handedness, ray)
+      })
+    })
+  }
+
+  /** If `ray` is tracking `hand` but is stored under the other hand, swap the groups and their children */
+  private assignHand(hand: 'left' | 'right', ray: THREE.XRTargetRaySpace) {
+    const current = hand === 'left' ? this.threeControllerLeft : this.threeControllerRight
+    if (current === ray || !this.threeControllerLeft || !this.threeControllerRight) return
+
+    const l = this.threeControllerLeft, r = this.threeControllerRight
+    const lChildren = [...l.children], rChildren = [...r.children]
+    lChildren.forEach(c => r.add(c))
+    rChildren.forEach(c => l.add(c))
+
+    ;[this.threeControllerLeft, this.threeControllerRight] = [r, l]
+    ;[this.gripLeft, this.gripRight] = [this.gripRight, this.gripLeft]
   }
 
   private buildControllerMesh(color: number): THREE.Group {
@@ -134,8 +156,22 @@ export class ControllerManager {
       }
     }
 
-    if (!leftFound) this.left.connected = false
-    if (!rightFound) this.right.connected = false
+    if (!leftFound) this.disconnect(this.left)
+    if (!rightFound) this.disconnect(this.right)
+  }
+
+  private disconnect(state: ControllerState) {
+    state.connected = false
+    state.gamepad = null
+    state.trigger = 0
+    state.grip = 0
+    state.triggerPressed = false
+    state.gripPressed = false
+    state.primaryPressed = false
+    state.secondaryPressed = false
+    state.thumbstickPressed = false
+    state.thumbstickX = 0
+    state.thumbstickY = 0
   }
 
   private readSource(source: XRInputSource, state: ControllerState, frame: XRFrame) {
@@ -162,7 +198,8 @@ export class ControllerManager {
     if (!gp) return
 
     const btn = (i: number) => gp.buttons[i]
-    const axis = (i: number) => gp.axes[i] ?? 0
+    const thumbstickXIndex = gp.axes.length >= 4 ? AXIS.THUMBSTICK_X : 0
+    const thumbstickYIndex = gp.axes.length >= 4 ? AXIS.THUMBSTICK_Y : 1
 
     state.trigger = btn(BUTTON.TRIGGER)?.value ?? 0
     state.grip = btn(BUTTON.GRIP)?.value ?? 0
@@ -171,8 +208,8 @@ export class ControllerManager {
     state.primaryPressed = btn(BUTTON.PRIMARY)?.pressed ?? false
     state.secondaryPressed = btn(BUTTON.SECONDARY)?.pressed ?? false
     state.thumbstickPressed = btn(BUTTON.THUMBSTICK)?.pressed ?? false
-    state.thumbstickX = axis(AXIS.THUMBSTICK_X)
-    state.thumbstickY = axis(AXIS.THUMBSTICK_Y)
+    state.thumbstickX = gp.axes[thumbstickXIndex] ?? 0
+    state.thumbstickY = gp.axes[thumbstickYIndex] ?? 0
   }
 
   getState(hand: 'left' | 'right'): ControllerState {
